@@ -41,3 +41,5 @@ Je peux également modifier tout ce qu'il y a dans ces onglets, ainsi que sur le
 onglets. Quand je suis déco, on peut seulement voir, en tant que visiteur les onglets
 projets, index, about et login. ( tables secondaires pour la connexion et déconnexion)
 
+pour vérif
+
