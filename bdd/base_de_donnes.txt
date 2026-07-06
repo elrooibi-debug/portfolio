@@ -1,0 +1,43 @@
+Pour mon portfolio, il y a plusieurs choses que l'on peut faire.
+
+Tout d'abord, nous avons l'accueil, endroit ou l'on a juste une photo
+et un texte de présentation ( trouver de l'inspiration sur pinterest).
+
+Ensuite, nous avons la partie projets, dans cet onglet, nous aurons tous les
+projets que j'aurais réalisés plus les projets en cours et ceux que je veux réaliser
+plus tard, il y aura donc 3 tableaux distinctifs.
+    Projets réalisés: Cet tableau contiendra le nom du projet, les langages informatiques
+    utilisés, une courte description du projet, le temps passé dessous et un lien vers le
+    repértoire github.
+
+    Projets en cours: nom du projet, date de début, courte description de ce que je souhaite réaliser
+    langages nécessaires. Une fois le projet fini, celui-ci devra migrer vers la table de projets
+    réalisés.
+
+    Projets que je veux réaliser: Nom du projet, courte description, langages nécessaires. Quand j'aurais
+    commencé ce projet, il migrera vers la table de projets en cours.
+
+    ( besoin de 2 tables intermediaires)
+
+Nous avons également la table learning, table dans laquelle j'aurais les langages informatiques
+que je souhaite apprendre. Cette table contiendra nom du langage, courte description dans laquelle
+j'indiquerai à quoi sert ce lalngage( c'est-à-dire, dans quel type d'applications/projets)
+on utilise ce type de langage et une colonne ressources ( histoire que ce soit ordonnée, au lieu d'avoir à
+chercher sur insta, youtube tous les ressources que j'aurais sauvegardé de façon non ordonnée)
+
+Il y a ensuite la partie habits qui sera couplé à une to do liste. Cette partie là est plus intime,
+elle me permettera de suivre en temps réel mon progrés dans mes objectifs personnels ( sports, lecture, codage..)
+Il y a 2 tables:
+    Habits: celle-i me permet de suivre mes habitudes, il y aura le nom de l'habitude, le nombre de fois que je souhaite
+    qu'elle soit réalisée, le nombre de fois qu'elle a été réaliséé et à la fin du mois, un pourcentage pour mieux visualiser le 
+    progrés du mois, car ces habitudes seront suivies par mois, donc à bien gérer cela.
+
+    To-do list: Celle-ci me sert à cocher les choses que j'aurais à faire dans la journée 
+    (nom de la tâche, une case à cocher si ça a été fait ou non).
+
+Finalement, nous avons l'onglet login qui me permet de me connecter, 
+quand je suis connecté, je peux avoir accés aux onglets habits et learning.
+Je peux également modifier tout ce qu'il y a dans ces onglets, ainsi que sur les autres
+onglets. Quand je suis déco, on peut seulement voir, en tant que visiteur les onglets
+projets, index, about et login. ( tables secondaires pour la connexion et déconnexion)
+
