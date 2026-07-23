@@ -43,3 +43,36 @@ projets, index, about et login. ( tables secondaires pour la connexion et décon
 
 
 
+    app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'yaz2wu'
+app.config['MYSQL_DB'] = 'flask'
+
+mysql = MySQL(app)
+
+cursor = mysql.connection.cursor()
+
+#we need a cursor in order for Flask to interact with the database tables
+#A cursor allows us to go though the db data, execute sql queries and delete
+#table records
+
+cursor.execute('''CREATE TABLE table_name(field1, field2...)''')
+cursor.execute('''INSERT INTO table_name VALUES(v1,v2...)''')
+cursor.execute('''DELETE FROM table_name WHERE condition''')
+
+#Saving the actions performed on the db, since mysql is not an auto-commit
+#db, we need to commit manually( save changes/actions performed by the cursor
+#execute on the db by ourselves)
+mysql.connection.commit()
+
+#closing the cursor
+cursor.close()
+
+    if request.method == 'GET':
+        return "habits tracked"
+    
+    if request.method == 'POST':
+        name = request.habit_tracker['name']
+        times = request.habit_tracker['times']
+        done = request.habit_tracker['done']
+        goal = request.habit_tracker['goal']

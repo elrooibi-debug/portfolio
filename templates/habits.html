@@ -1,2 +1,11 @@
 {%extends "base.html" %}
 
+{%block habits%}
+<form action="{{url_for('habits')}}" method="POST">
+    <p>Habits<input type ="text" name = "name"></p>
+    <p>Done<input type ="text" name = "done"></p>
+    <p>Times<input type ="text" name = "times"></p>
+    <p>Goal<input type ="text" name = "goal"></p>
+    <p><input type = "submit" value = "Submit" /></p>
+</form>
+{%endblock%}
