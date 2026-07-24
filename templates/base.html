@@ -8,17 +8,30 @@
     </head>
     <nav>
         <a href="/index">Home</a>
-        <a href="/projects">Projects</a>
-        <a href="/learning">Learning</a>
-        <a href="/habits">Habits</a>
         <a href="/about">About</a>
-        <a href="/login">Login</a>
+
+
+        {% if session.get('loggedin') %}
+            <a href="/projects">Projects</a>
+            <a href="/learning">Learning</a>
+            <a href="/habits">Habits</a>
+            
+            <a class="btn" href="{{ url_for('logout') }}">Log out</a>  
+        {%else %}    
+
+        <a href="/login">Log in</a>
+
+        {%endif%}
     </nav>
 
     <body>
         {% block index %}{%endblock%}
-        {%block login %}{%endblock%}
+        {%block about%}{%endblock%}
+        {%block projects%}{%endblock%}
+        {%block learning%}{%endblock%}
         {%block habits %}{%endblock%}
+        {%block login %}{%endblock%}
+        
 
     </body>
 

@@ -23,49 +23,11 @@ mysql = MySQL(app)
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'loggedin' in session:
-        return render_template('index.html', title="Home")
-    return render_template('login.html', title = 'Sign in')
-
-
-@app.route('/learning')
-def learning():
-    return render_template('learning.html', title="Learning")
-
-
-@app.route('/projects')
-def projects():
-    return render_template('projects.html', title="Projects")
-
+    return render_template('index.html', title="Home")
 
 @app.route('/about')
 def about():
     return render_template('about.html', title="About")
-
-
-@app.route('/habits', methods=['GET', 'POST'])
-
-def habits():
-    if request.method == 'POST':
-        name = request.form['name']
-        times = request.form['times']
-        done = request.form['done']
-        goal = request.form['goal']
-        
-        cursor = mysql.connection.cursor()
-        
-        cursor.execute(
-            ''' INSERT INTO habits (Habits, Done, Times, Goal) VALUES (%s, %s, %s, %s) ''',
-            (name, done, times, goal)
-        )
-        mysql.connection.commit()
-        cursor.close()
-        
-        return "Done!!"
-    if 'id_user' not in session:
-        return render_template('index.html', title="Habits")
-    return render_template('habits.html', title="Habits")
-
 
 @app.route('/login', methods= ['GET', 'POST'] )
 def login():
@@ -97,6 +59,50 @@ def logout():
     session.pop('id_user', None)
     session.pop('username', None)
     return redirect(url_for('login'))
+
+
+
+
+
+@app.route('/learning')
+def learning():
+    if 'loggedin' not in session: 
+        return redirect(url_for('login'))
+    return render_template('learning.html', title="Learning")
+
+
+@app.route('/projects')
+def projects():
+    if 'loggedin' not in session: 
+        return redirect(url_for('login'))
+    return render_template('projects.html', title="Projects")
+
+
+
+
+@app.route('/habits', methods=['GET', 'POST'])
+def habits():
+
+    if 'loggedin' not in session: 
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        times = request.form['times']
+        done = request.form['done']
+        goal = request.form['goal']
+        
+        cursor = mysql.connection.cursor()
+        
+        cursor.execute(
+            ''' INSERT INTO habits (Habits, Done, Times, Goal) VALUES (%s, %s, %s, %s) ''',
+            (name, done, times, goal)
+        )
+        mysql.connection.commit()
+        cursor.close()
+        
+        
+    return render_template('habits.html', title= "Habits tracker" )
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
