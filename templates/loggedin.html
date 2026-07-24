@@ -6,19 +6,26 @@
        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <h1>Welcome to my porfolio</h1>
     </head>
-    <nav>
+    
+        <nav>
         <a href="/index">Home</a>
         <a href="/projects">Projects</a>
         <a href="/learning">Learning</a>
         <a href="/habits">Habits</a>
         <a href="/about">About</a>
-        <a href="/login">Login</a>
-    </nav>
+        <a class="btn" href="{{ url_for('logout') }}">Logout</a>  
+    </nav>  
+
+    <h2>Welcome to your personnal space</h2>
+        <div class="border">
+            <p class="word">You are now logged in.</p>
+        </div> 
 
     <body>
         {% block index %}{%endblock%}
-        {%block login %}{%endblock%}
         {%block habits %}{%endblock%}
+        {%block loggedin %}{%endblock%}
+
 
     </body>
 

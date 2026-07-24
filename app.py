@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, url_for, redirect
 from flask_mysqldb import MySQL
 from config import Config
 from forms import LoginForm
+
+
 
 app = Flask(__name__)
 
@@ -17,11 +19,13 @@ app.config['MYSQL_DB'] = 'projet_portfolio'
 mysql = MySQL(app)
 
 
-# Routes
+
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title="Home")
+    if 'loggedin' in session:
+        return render_template('index.html', title="Home")
+    return render_template('login.html', title = 'Sign in')
 
 
 @app.route('/learning')
@@ -40,6 +44,7 @@ def about():
 
 
 @app.route('/habits', methods=['GET', 'POST'])
+
 def habits():
     if request.method == 'POST':
         name = request.form['name']
@@ -57,15 +62,41 @@ def habits():
         cursor.close()
         
         return "Done!!"
-    
+    if 'id_user' not in session:
+        return render_template('index.html', title="Habits")
     return render_template('habits.html', title="Habits")
 
 
-@app.route('/login')
+@app.route('/login', methods= ['GET', 'POST'] )
 def login():
     form = LoginForm()
-    return render_template('login.html', title="Sign in", form=form)
+    msg=''
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
 
+        cursor = mysql.connection.cursor()
+
+        cursor.execute( 'SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
+
+        account = cursor.fetchone()
+
+        if account: 
+            session['loggedin'] = True
+            session['id_user'] = account[0]
+            session['username'] = account[1]
+            return render_template('index.html', msg = 'Logged successfully')
+        else:
+            msg = 'Incorrect username or password,try again'
+
+    return render_template('login.html', title="Sign in", msg = msg)
+
+@app.route('/logout')
+def logout():
+    session.pop('loggedin', None)
+    session.pop('id_user', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
