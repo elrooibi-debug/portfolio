@@ -1,11 +1,35 @@
-{%extends "base.html" %}
+{% extends "base.html" %}
 
-    {%block habits%}
-    <form action="{{url_for('habits')}}" method="POST">
-        <p>Habits<input type ="text" name = "name"></p>
-        <p>Done<input type ="text" name = "done"></p>
-        <p>Times<input type ="text" name = "times"></p>
-        <p>Goal<input type ="text" name = "goal"></p>
-        <p><input type = "submit" value = "Submit" /></p>
-    </form>
-    {%endblock%}
+{% block habits %}
+<form action="{{ url_for('habits') }}" method="POST">
+    <p>Habits <input type="text" name="name"></p>
+    <p>Done <input type="text" name="done"></p>
+    <p>Times <input type="text" name="times"></p>
+    <p>Goal <input type="text" name="goal"></p>
+    <p><input type="submit" value="Submit" /></p>
+</form>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Habit</th>
+            <th>Done</th>
+            <th>Times</th>
+            <th>Goal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in habitudes %}
+        <tr>
+            <!-- Si tu utilises DictCursor côté Python : -->
+            <td>{{ item.Habits }}</td>
+            <td>{{ item.Done }}</td>
+            <td>{{ item.Times }}</td>
+            <td>{{ item.Goal }}</td>
+            
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -16,6 +16,8 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'projet_portfolio'
 
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
 mysql = MySQL(app)
 
 
@@ -82,6 +84,7 @@ def projects():
 
 @app.route('/habits', methods=['GET', 'POST'])
 def habits():
+    
 
     if 'loggedin' not in session: 
         return redirect(url_for('login'))
@@ -99,10 +102,14 @@ def habits():
             (name, done, times, goal)
         )
         mysql.connection.commit()
-        cursor.close()
+
+        return redirect(url_for('habits'))
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM habits')
+    habitude = cursor.fetchall()
+    cursor.close()
         
-        
-    return render_template('habits.html', title= "Habits tracker" )
+    return render_template('habits.html', title= "Habits tracker" , habitudes = habitude)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
