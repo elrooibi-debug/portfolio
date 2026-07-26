@@ -1,0 +1,54 @@
+{%extends "base.html" %}
+
+{%block todo%}
+    <h2>To Do List</h2>
+
+    {% if not show_form %}
+        <a href="{{ url_for('todo', action = 'add')}}">Add task</a>
+    {%else%}
+        <a href="{{ url_for('todo')}}">Cancel</a>
+    {%endif%}
+
+    {%if show_form%}
+    <form action="{{ url_for('todo')}}" method="POST">
+        <input type="text" name="nom_tache" required>
+        <input type="time" name="temps_tache"required>
+        <input type="submit" value="submit task">
+    </form>
+    {%endif%}
+
+    <table>
+        <tbody>
+            {%for tache in taches%}
+            <tr>
+                <td>
+                    {% if tache.realise == 1 %}
+                        <s>{{tache.nom_tache}}</s>
+                    {% else %}
+                        {{tache.nom_tache}}
+                    {% endif %}
+                </td>
+
+                <td> {{tache.temps_tache}}</td>
+
+                <td style="text-align: center;">
+                    <form action="{{ url_for('check_task', id_tache=tache.id_tache) }}" method="POST">
+                        <input type="checkbox" 
+                            name="realise" 
+                            onchange="this.form.submit()" 
+                            {% if tache.realise == 1 %} 
+                                    checked
+                            {% endif %}>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+        <tr>
+            <td style="text-align: center; "> No tasks added yet</td>
+        </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+
+{%endblock%}

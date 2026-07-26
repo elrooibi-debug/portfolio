@@ -175,5 +175,54 @@ def delete_habit(id_habit):
     return redirect(url_for('habits'))
 
 
+@app.route('/todo', methods=['GET', 'POST'])
+def todo():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    show_form = (request.args.get('action') =='add')
+    
+
+    if request.method =='POST':
+        nom_tache = request.form['nom_tache']
+        temps_tache = request.form['temps_tache']
+        realise = request.form['realise']
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM to_do WHERE nom_tache =%s", (nom_tache,))
+        tache = cursor.fetchone()
+
+        if tache:
+            flash('task already in to do list')
+        else:
+            cursor.execute("""INSERT INTO to_do (nom_tache, temps_tache, realise) VALUES (%s ,%s, %s) """, (nom_tache, temps_tache, realise))
+            mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('todo'))
+
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM to_do")
+    mes_taches = cursor.fetchall()
+    cursor.close()
+    
+    return render_template('todo.html', title="To Do List", show_form = show_form, taches = mes_taches)
+
+@app.route('/check-task/<int:id_tache>', methods=['POST'])
+
+def check_task(id_tache):
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""UPDATE to_do 
+    SET realise = 1
+    WHERE id_tache = %s""", (id_tache,))
+
+    mysql.connection.commit()
+    cursor.close()
+
+    return redirect(url_for('todo'))
+
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)

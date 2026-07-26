@@ -12,7 +12,7 @@
 
 <div style="margin-bottom: 15px;">
     {% if not show_form %}
-        <a href="{{ url_for('habits', action='add') }}">+ Add Habit</a>
+        <a href="{{ url_for('habits', action='add') }}">Add Habit</a>
     {% else %}
         <a href="{{ url_for('habits') }}">Cancel</a>
     {% endif %}
@@ -28,8 +28,9 @@
     </form>
 {% endif %}
 
-<table border="1" cellpadding="8" cellspacing="0">
+<table border="1" >
     <thead>
+        <h2>Habit tracker</h2>
         <tr>
             <th>Habit</th>
             <th>Done</th>
@@ -76,5 +77,8 @@
         {% endfor %}
     </tbody>
 </table>
+
+
+
 
 {% endblock %}

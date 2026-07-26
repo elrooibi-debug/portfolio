@@ -15,6 +15,7 @@
             <a href="/projects">Projects</a>
             <a href="/learning">Learning</a>
             <a href="/habits">Habits</a>
+            <a href="/todo">To Do List</a>
             
             <a class="btn" href="{{ url_for('logout') }}">Log out</a>  
         {%else %}    
@@ -31,6 +32,7 @@
         {%block learning%}{%endblock%}
         {%block habits %}{%endblock%}
         {%block login %}{%endblock%}
+        {%block todo%}{%endblock%}
         
 
     </body>
