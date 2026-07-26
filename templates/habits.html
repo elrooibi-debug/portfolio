@@ -2,50 +2,47 @@
 
 {% block habits %}
 
-<!-- Messages Flash (Erreurs / Succès) -->
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
-        <p style="color: red; font-weight: bold;">{{ message }}</p>
+            <p style="color: red; font-weight: bold;">{{ message }}</p>
         {% endfor %}
     {% endif %}
 {% endwith %}
 
-<!-- Bouton d'affichage du formulaire -->
-{% if not show_form %}
-    <a href="{{ url_for('habits', action='add') }}" class="button">+ Add Habit</a>
-{% else %}
-    <a href="{{ url_for('habits') }}" class="button">Cancel</a>
-{% endif %}
+<div style="margin-bottom: 15px;">
+    {% if not show_form %}
+        <a href="{{ url_for('habits', action='add') }}">+ Add Habit</a>
+    {% else %}
+        <a href="{{ url_for('habits') }}">Cancel</a>
+    {% endif %}
+</div>
 
-<!-- Formulaire d'ajout d'habitude -->
 {% if show_form %}
-    <form action="{{ url_for('habits') }}" method="POST" style="margin-top: 15px; margin-bottom: 15px;">
-        <p>Habits: <input type="text" name="name" required></p>
+    <form action="{{ url_for('habits') }}" method="POST" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; width: 300px;">
+        <p>Habit Name: <input type="text" name="name" required></p>
         <p>Done: <input type="number" name="done" value="0" required></p>
         <p>Times: <input type="number" name="times" value="0" required></p>
         <p>Goal: <input type="number" name="goal" required></p>
-        <p><input type="submit" value="Submit" /></p>
+        <p><input type="submit" value="Save Habit"></p>
     </form>
 {% endif %}
 
-<!-- Tableau d'habitudes -->
-<table border="1">
+<table border="1" cellpadding="8" cellspacing="0">
     <thead>
         <tr>
             <th>Habit</th>
             <th>Done</th>
             <th>Times</th>
             <th>Goal</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
         {% for item in habitudes %}
         <tr>
-            <!-- 1. Nom de l'habitude -->
             <td>{{ item.Habits }}</td>
 
-            <!-- 2. Checkbox pour Validé/Done -->
             <td style="text-align: center;">
                 <form action="{{ url_for('check_habit', id_habit=item.id_habit) }}" method="POST">
                     <input type="checkbox" 
@@ -55,15 +52,26 @@
                 </form>
             </td>
 
-            <!-- 3. Nombre de fois réalisées dans le mois -->
-            <td>{{ item.Times }}</td>
+            <td style="text-align: center;">{{ item.Times }}</td>
+            <td style="text-align: center;">{{ item.Goal }}</td>
 
-            <!-- 4. Objectif mensuel -->
-            <td>{{ item.Goal }}</td>
+            <td>
+                <button type="button" onclick="document.getElementById('del-{{ item.id_habit }}').style.display='block';">
+                    Delete
+                </button>
+
+                <div id="del-{{ item.id_habit }}" style="display: none; position: absolute; background: #fff; border: 1px solid #000; padding: 10px;">
+                    <p>Delete "{{ item.Habits }}" ?</p>
+                    <form action="{{ url_for('delete_habit', id_habit=item.id_habit) }}" method="POST">
+                        <button type="submit" style="color: red;">Yes, Delete</button>
+                        <button type="button" onclick="document.getElementById('del-{{ item.id_habit }}').style.display='none';">Cancel</button>
+                    </form>
+                </div>
+            </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="4">No habits added yet.</td>
+            <td colspan="5" style="text-align: center;">No habits added yet.</td>
         </tr>
         {% endfor %}
     </tbody>

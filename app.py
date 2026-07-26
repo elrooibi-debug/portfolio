@@ -87,7 +87,6 @@ def habits():
 
     cursor = mysql.connection.cursor()
 
-    # --- 1. SOUMISSION DU FORMULAIRE ---
     if request.method == 'POST':
         name = request.form['name']
         times = request.form['times']
@@ -100,7 +99,7 @@ def habits():
         if existing_habit:
             flash("This habit has already been saved!")
         else:
-            # On inclut les dates dès la création
+            
             cursor.execute(
                 ''' INSERT INTO habits (Habits, Done, Times, Goal, last_checked_date, last_checked_month) 
                     VALUES (%s, %s, %s, %s, %s, %s) ''',
@@ -112,18 +111,17 @@ def habits():
         cursor.close()
         return redirect(url_for('habits'))
     
-    # --- 2. RÉINITIALISATIONS AUTOMATIQUES ---
+    
     cursor.execute('SELECT * FROM habits')
     habits_list = cursor.fetchall()
 
     for habit in habits_list:
-        # Réinitialisation du mois
         if habit['last_checked_month'] != current_month:
             cursor.execute(
                 """UPDATE habits SET Times = 0, Done = 0, last_checked_month = %s WHERE id_habit = %s""", 
                 (current_month, habit['id_habit'])
             )
-        # Réinitialisation du jour
+
         elif habit['last_checked_date'] != today_date:
             cursor.execute(
                 """UPDATE habits SET Done = 0 WHERE id_habit = %s""", 
@@ -133,14 +131,12 @@ def habits():
     mysql.connection.commit()
     cursor.close()
     
-    # --- 3. CHARGEMENT DES DONNÉES POUR L'AFFICHAGE ---
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM habits')
     habitude = cursor.fetchall()
     cursor.close()
-        
-    return render_template('habits.html', title="Habits tracker", habitudes=habitude, show_form=show_form)
 
+    return render_template('habits.html', title="Habits tracker", habitudes=habitude, show_form=show_form)
 
 @app.route('/check-habit/<int:id_habit>', methods=['POST'])
 def check_habit(id_habit):
@@ -163,6 +159,19 @@ def check_habit(id_habit):
     mysql.connection.commit()
     cursor.close()
 
+    return redirect(url_for('habits'))
+
+@app.route('/delete-habit/<int:id_habit>', methods=['POST'])
+def delete_habit(id_habit):
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM habits WHERE id_habit = %s', (id_habit,))
+    mysql.connection.commit()
+    cursor.close()
+
+    flash("Habit successfully deleted!")
     return redirect(url_for('habits'))
 
 
