@@ -186,7 +186,6 @@ def todo():
     if request.method =='POST':
         nom_tache = request.form['nom_tache']
         temps_tache = request.form['temps_tache']
-        realise = request.form['realise']
 
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM to_do WHERE nom_tache =%s", (nom_tache,))
@@ -195,7 +194,7 @@ def todo():
         if tache:
             flash('task already in to do list')
         else:
-            cursor.execute("""INSERT INTO to_do (nom_tache, temps_tache, realise) VALUES (%s ,%s, %s) """, (nom_tache, temps_tache, realise))
+            cursor.execute("""INSERT INTO to_do (nom_tache, temps_tache) VALUES (%s ,%s) """, (nom_tache, temps_tache))
             mysql.connection.commit()
         cursor.close()
         return redirect(url_for('todo'))
@@ -209,7 +208,6 @@ def todo():
     return render_template('todo.html', title="To Do List", show_form = show_form, taches = mes_taches)
 
 @app.route('/check-task/<int:id_tache>', methods=['POST'])
-
 def check_task(id_tache):
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -222,6 +220,19 @@ def check_task(id_tache):
     mysql.connection.commit()
     cursor.close()
 
+    return redirect(url_for('todo'))
+
+@app.route('/delete-task/<int:id_tache>', methods=['POST'])
+def delete_task(id_tache):
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM to_do WHERE id_tache = %s', (id_tache,))
+    mysql.connection.commit()
+    cursor.close()
+
+    flash("Task successfully deleted!")
     return redirect(url_for('todo'))
 
 if __name__ == '__main__':
