@@ -1,14 +1,35 @@
 {% extends "base.html" %}
 
 {% block habits %}
-<form action="{{ url_for('habits') }}" method="POST">
-    <p>Habits <input type="text" name="name"></p>
-    <p>Done <input type="text" name="done"></p>
-    <p>Times <input type="text" name="times"></p>
-    <p>Goal <input type="text" name="goal"></p>
-    <p><input type="submit" value="Submit" /></p>
-</form>
 
+<!-- Messages Flash (Erreurs / Succès) -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <p style="color: red; font-weight: bold;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!-- Bouton d'affichage du formulaire -->
+{% if not show_form %}
+    <a href="{{ url_for('habits', action='add') }}" class="button">+ Add Habit</a>
+{% else %}
+    <a href="{{ url_for('habits') }}" class="button">Cancel</a>
+{% endif %}
+
+<!-- Formulaire d'ajout d'habitude -->
+{% if show_form %}
+    <form action="{{ url_for('habits') }}" method="POST" style="margin-top: 15px; margin-bottom: 15px;">
+        <p>Habits: <input type="text" name="name" required></p>
+        <p>Done: <input type="number" name="done" value="0" required></p>
+        <p>Times: <input type="number" name="times" value="0" required></p>
+        <p>Goal: <input type="number" name="goal" required></p>
+        <p><input type="submit" value="Submit" /></p>
+    </form>
+{% endif %}
+
+<!-- Tableau d'habitudes -->
 <table border="1">
     <thead>
         <tr>
@@ -21,15 +42,31 @@
     <tbody>
         {% for item in habitudes %}
         <tr>
-            <!-- Si tu utilises DictCursor côté Python : -->
+            <!-- 1. Nom de l'habitude -->
             <td>{{ item.Habits }}</td>
-            <td>{{ item.Done }}</td>
-            <td>{{ item.Times }}</td>
-            <td>{{ item.Goal }}</td>
-            
 
+            <!-- 2. Checkbox pour Validé/Done -->
+            <td style="text-align: center;">
+                <form action="{{ url_for('check_habit', id_habit=item.id_habit) }}" method="POST">
+                    <input type="checkbox" 
+                           name="done" 
+                           onchange="this.form.submit()" 
+                           {% if item.Done == 1 %} checked disabled {% endif %}>
+                </form>
+            </td>
+
+            <!-- 3. Nombre de fois réalisées dans le mois -->
+            <td>{{ item.Times }}</td>
+
+            <!-- 4. Objectif mensuel -->
+            <td>{{ item.Goal }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4">No habits added yet.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 {% endblock %}

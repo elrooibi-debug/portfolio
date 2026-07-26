@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, session, url_for, redirect, flash
 from flask_mysqldb import MySQL
 from config import Config
 from forms import LoginForm
-
-
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -15,11 +14,9 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'projet_portfolio'
-
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
-
 
 
 @app.route('/')
@@ -27,33 +24,35 @@ mysql = MySQL(app)
 def index():
     return render_template('index.html', title="Home")
 
+
 @app.route('/about')
 def about():
     return render_template('about.html', title="About")
 
-@app.route('/login', methods= ['GET', 'POST'] )
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    msg=''
+    msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
 
         cursor = mysql.connection.cursor()
-
-        cursor.execute( 'SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
-
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
         account = cursor.fetchone()
+        cursor.close()
 
         if account: 
             session['loggedin'] = True
-            session['id_user'] = account[0]
-            session['username'] = account[1]
-            return render_template('index.html', msg = 'Logged successfully')
+            session['id_user'] = account['id_user']
+            session['username'] = account['username']
+            return render_template('index.html', msg='Logged successfully')
         else:
-            msg = 'Incorrect username or password,try again'
+            msg = 'Incorrect username or password, try again'
 
-    return render_template('login.html', title="Sign in", msg = msg)
+    return render_template('login.html', title="Sign in", msg=msg)
+
 
 @app.route('/logout')
 def logout():
@@ -61,9 +60,6 @@ def logout():
     session.pop('id_user', None)
     session.pop('username', None)
     return redirect(url_for('login'))
-
-
-
 
 
 @app.route('/learning')
@@ -80,36 +76,95 @@ def projects():
     return render_template('projects.html', title="Projects")
 
 
-
-
 @app.route('/habits', methods=['GET', 'POST'])
 def habits():
-    
-
     if 'loggedin' not in session: 
         return redirect(url_for('login'))
-    
+
+    show_form = (request.args.get('action') == 'add')
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    current_month = datetime.now().month
+
+    cursor = mysql.connection.cursor()
+
+    # --- 1. SOUMISSION DU FORMULAIRE ---
     if request.method == 'POST':
         name = request.form['name']
         times = request.form['times']
         done = request.form['done']
         goal = request.form['goal']
         
-        cursor = mysql.connection.cursor()
-        
-        cursor.execute(
-            ''' INSERT INTO habits (Habits, Done, Times, Goal) VALUES (%s, %s, %s, %s) ''',
-            (name, done, times, goal)
-        )
-        mysql.connection.commit()
+        cursor.execute('SELECT * FROM habits WHERE Habits = %s', (name,))
+        existing_habit = cursor.fetchone()
 
+        if existing_habit:
+            flash("This habit has already been saved!")
+        else:
+            # On inclut les dates dès la création
+            cursor.execute(
+                ''' INSERT INTO habits (Habits, Done, Times, Goal, last_checked_date, last_checked_month) 
+                    VALUES (%s, %s, %s, %s, %s, %s) ''',
+                (name, done, times, goal, today_date, current_month)
+            )
+            mysql.connection.commit()
+            flash("Habit successfully added!")
+
+        cursor.close()
         return redirect(url_for('habits'))
+    
+    # --- 2. RÉINITIALISATIONS AUTOMATIQUES ---
+    cursor.execute('SELECT * FROM habits')
+    habits_list = cursor.fetchall()
+
+    for habit in habits_list:
+        # Réinitialisation du mois
+        if habit['last_checked_month'] != current_month:
+            cursor.execute(
+                """UPDATE habits SET Times = 0, Done = 0, last_checked_month = %s WHERE id_habit = %s""", 
+                (current_month, habit['id_habit'])
+            )
+        # Réinitialisation du jour
+        elif habit['last_checked_date'] != today_date:
+            cursor.execute(
+                """UPDATE habits SET Done = 0 WHERE id_habit = %s""", 
+                (habit['id_habit'],)
+            )
+                    
+    mysql.connection.commit()
+    cursor.close()
+    
+    # --- 3. CHARGEMENT DES DONNÉES POUR L'AFFICHAGE ---
     cursor = mysql.connection.cursor()
     cursor.execute('SELECT * FROM habits')
     habitude = cursor.fetchall()
     cursor.close()
         
-    return render_template('habits.html', title= "Habits tracker" , habitudes = habitude)
+    return render_template('habits.html', title="Habits tracker", habitudes=habitude, show_form=show_form)
+
+
+@app.route('/check-habit/<int:id_habit>', methods=['POST'])
+def check_habit(id_habit):
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    current_month = datetime.now().month
+
+    cursor.execute(""" 
+        UPDATE habits 
+        SET Done = 1, 
+            Times = Times + 1, 
+            last_checked_date = %s, 
+            last_checked_month = %s 
+        WHERE id_habit = %s
+    """, (today_date, current_month, id_habit))
+    
+    mysql.connection.commit()
+    cursor.close()
+
+    return redirect(url_for('habits'))
+
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5000, debug=True)
