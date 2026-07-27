@@ -97,12 +97,56 @@ def learning():
     return render_template('learning.html', title="Learning")
 
 
-@app.route('/projects')
+@app.route('/projects', methods = ['GET', 'POST'])
 def projects():
     if 'loggedin' not in session: 
         return redirect(url_for('login'))
-    return render_template('projects.html', title="Projects")
 
+    show_form = (request.args.get('action') == 'edit')
+
+    if request.method == 'POST':
+        name_project = request.form['name_project']
+        language_info = request.form['language_info']
+        new_description = request.form['description']
+        time = request.form['time']
+        new_skills = request.form['skills']
+        lien = request.form['lien']
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE project SET name_project =%s, language_info =%s, new_description =%s, time =%s, skills= %s, lien =%s WHERE id_project = 1" , (name_project, language_info,new_description,time, new_skills, lien))
+        mysql.connection.commit()
+        cursor.close
+
+        return redirect(url_for('projects'))
+
+    cursor = mysql.connection.cursor()
+    
+    cursor.execute("SELECT * FROM `project`")
+    project = cursor.fetchall()
+    cursor.close()
+
+    if project:
+        name = project['name_project']
+        languages_used = project['language_info']
+        description_project = project['description']
+        time_spent = project['time']
+        skills_learned = project['skills']
+        project_link = project['lien']
+    else:
+        name = languages_used = description_project = time_spent = skills_learned = project_link = ""
+
+
+    return render_template(
+        'projects.html',
+        title="Projects",
+        show_form=show_form,
+        name=name,
+        languages_used=languages_used,
+        description_project=description_project,
+        time_spent=time_spent,
+        skills_learned=skills_learned,
+        project_link=project_link
+    )
 
 @app.route('/habits', methods=['GET', 'POST'])
 def habits():

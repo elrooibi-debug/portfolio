@@ -1,5 +1,31 @@
 {%extends "base.html" %}
 
     {%block projects%}
+    <H2>My projects</H2>
+
+
+    {%if not show_form%}
+        <a href="{{ url_for('projects', action = 'edit')}}" method = "POST">Edit</a>
+    {% else %}
+        <a href="{{ url_for('projects')}}">Cancel</a>
+    {% endif %}
+
+
+    {% if show_form %}
+    <form action= "{{ url_for('projects')}}" method="POST">
+        <p>Name of the project<input type="text" name="name_project" value=" {{ name }}"></p>
+        <br>
+        <p>Languages used<textarea name="Langages used" rows="5" cols="50" required>{{ languages_used }}</textarea></p>
+        <br>
+        <p>Description of the project<textarea name="description" rows="5" cols="50" required>{{ description_project }}</textarea></p>
+        <br>
+        <p>Time dedicated to this project<input type="time" value="{{ time }}"></p>
+        <p>Skills learned during the coding of this project<textarea name="skills" rows="5" cols="60" required>{{ skills_learned }}</textarea></p>
+        <br>
+        <p><input type="text" name="lien" value="{{ lien }}"></p>
+        <input type="submit" value="Validate the edition?">
+    </form>
+    {% endif %}
+    
 
     {%endblock%}
