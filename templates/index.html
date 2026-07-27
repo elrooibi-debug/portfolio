@@ -1,8 +1,16 @@
-{%extends "base.html" %}
+{% extends "base.html" %}
 
+{% block index %}
+    {% if not show_form %}
+        <p>{{ presentation }}</p>
+        <a href="{{ url_for('index', action='edit') }}">Edit</a>
+    {% else %}
+        <a href="{{ url_for('index') }}">Cancel</a>
 
-    {%block index%}
-    <h2>Welcome to Ibi's portfolio</h2>
-    {%endblock%}
-
-
+        <form action="{{ url_for('index') }}" method="POST" style="margin-top: 10px;">
+            <textarea name="Presentation" rows="6" cols="50" required>{{ presentation }}</textarea>
+            <br>
+            <input type="submit" value="Validate edition">
+        </form>
+    {% endif %}
+{% endblock %}

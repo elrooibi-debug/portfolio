@@ -20,10 +20,38 @@ mysql = MySQL(app)
 
 
 @app.route('/')
-@app.route('/index')
-def index():
-    return render_template('index.html', title="Home")
 
+@app.route('/index', methods=['GET', 'POST'])
+def index():
+
+    show_form = (request.args.get('action') == 'edit')
+
+    if request.method == 'POST':
+        nouveau_texte = request.form['Presentation']
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("""UPDATE `index` SET Presentation = %s WHERE id_presentation =1 """, (nouveau_texte, ))
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return redirect(url_for('index'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT * FROM `index` LIMIT 1 """)
+    description = cursor.fetchone()
+    cursor.close()
+
+    texte_actuel = ""
+    if description:
+        if isinstance(description, dict):
+            texte_actuel = description.get('Presentation', '')
+        else:
+            texte_actuel = description[0]
+
+    
+    return render_template('index.html', title="Home", show_form=show_form, presentation=texte_actuel)
 
 @app.route('/about')
 def about():

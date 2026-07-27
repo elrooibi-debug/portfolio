@@ -2,13 +2,7 @@
 
 {% block habits %}
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: red; font-weight: bold;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+
 
 <div style="margin-bottom: 15px;">
     {% if not show_form %}
@@ -49,7 +43,7 @@
                     <input type="checkbox" 
                            name="done" 
                            onchange="this.form.submit()" 
-                           {% if item.Done == 1 %} checked disabled {% endif %}>
+                           {% if item.Done == 1 %} checked {% endif %}>
                 </form>
             </td>
 
