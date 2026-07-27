@@ -5,27 +5,75 @@
 
 
     {%if not show_form%}
-        <a href="{{ url_for('projects', action = 'edit')}}" method = "POST">Edit</a>
+        {% if session.get('loggedin') %}
+            <a href="{{ url_for('projects', action = 'edit')}}" class="btn-edit">Add new project </a>
+        {% endif %}
+
+        <div class="project-grid">
+            {% for p in projects %}
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>{{ p.name_project }}</h3>
+                        <span class="badge-time">{{ p.time }}</span>
+                    </div>
+
+                    <p class="card-description">{{ p.description }}</p>
+
+                    <div class="card-tags">
+                        <div class="tag">{{ p.language_info }}</div>
+                        <div class="tag">{{ p.skills }}</div>
+                    </div>
+
+            {% if p.lien %}
+            <p><a href="{{ p.lien }}" target="_blank" class="card-link">View project</a></p>
+            {% endif %}
+
+                {% if session.get('loggedin') %}
+                    <a href="{{ url_for('projects', action='edit', id_project=p.id_project) }}" class="btn-edit">Edit</a>
+                {% endif %}
+            </div>
+            {% else %}
+            <p>No projects found.</p>
+            {% endfor %}
+        </div>
+        
+
     {% else %}
         <a href="{{ url_for('projects')}}">Cancel</a>
-    {% endif %}
 
+        <form action="{{ url_for('projects') }}" method="POST" style="margin-top: 15px;">
 
-    {% if show_form %}
-    <form action= "{{ url_for('projects')}}" method="POST">
-        <p>Name of the project<input type="text" name="name_project" value=" {{ name }}"></p>
-        <br>
-        <p>Languages used<textarea name="Langages used" rows="5" cols="50" required>{{ languages_used }}</textarea></p>
-        <br>
-        <p>Description of the project<textarea name="description" rows="5" cols="50" required>{{ description_project }}</textarea></p>
-        <br>
-        <p>Time dedicated to this project<input type="time" value="{{ time }}"></p>
-        <p>Skills learned during the coding of this project<textarea name="skills" rows="5" cols="60" required>{{ skills_learned }}</textarea></p>
-        <br>
-        <p><input type="text" name="lien" value="{{ lien }}"></p>
-        <input type="submit" value="Validate the edition?">
+            {% if project %}
+                <input type="hidden" name="id" value="{{ project.id_project }}">
+            {% endif %}
+
+            <p>Name of the project:<br>
+                <input type="text" name="name_project" value="{{ project.name_project if project else ''}}" required>
+            </p>
+
+            <p>Languages used:<br>
+                <textarea name="language_info" rows="5" cols="50" required>{{ project.language_info if project else '' }}</textarea>
+            </p>
+
+            <p>Description of the project:<br>
+                <textarea name="description" rows="5" cols="50" required>{{ project.description if project else '' }}</textarea>
+            </p>
+
+            <p>Time dedicated to this project:<br>
+                <input type="text" name="time" value="{{ project.time if project else '' }}">
+            </p>
+
+            <p>Skills learned during the coding of this project:<br>
+                <textarea name="skills" rows="5" cols="60" required>{{ project.skills if project else '' }}</textarea>
+            </p>
+
+            <p>Project link:<br>
+                <input type="text" name="lien" value="{{ project.lien if project else '' }}">
+            </p>
+
+            <input type="submit" value="Validate the edition">
     </form>
     {% endif %}
-    
+
 
     {%endblock%}

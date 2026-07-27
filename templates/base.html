@@ -9,11 +9,10 @@
     <nav>
         <a href="/index">Home</a>
         <a href="/about">About</a>
+        <a href="/projects">Projects</a>
 
 
         {% if session.get('loggedin') %}
-            <a href="/projects">Projects</a>
-            <a href="/learning">Learning</a>
             <a href="/habits">Habits</a>
             <a href="/todo">To Do List</a>
             
@@ -29,7 +28,6 @@
         {% block index %}{%endblock%}
         {%block about%}{%endblock%}
         {%block projects%}{%endblock%}
-        {%block learning%}{%endblock%}
         {%block habits %}{%endblock%}
         {%block login %}{%endblock%}
         {%block todo%}{%endblock%}

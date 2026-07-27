@@ -27,6 +27,9 @@ def index():
     show_form = (request.args.get('action') == 'edit')
 
     if request.method == 'POST':
+        if 'loggedin' not in session:
+            return redirect(url_for('login'))
+        
         nouveau_texte = request.form['Presentation']
 
         cursor = mysql.connection.cursor()
@@ -90,21 +93,17 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/learning')
-def learning():
-    if 'loggedin' not in session: 
-        return redirect(url_for('login'))
-    return render_template('learning.html', title="Learning")
-
-
 @app.route('/projects', methods = ['GET', 'POST'])
 def projects():
-    if 'loggedin' not in session: 
-        return redirect(url_for('login'))
 
     show_form = (request.args.get('action') == 'edit')
+    project_id = request.args.get('id_project')
 
     if request.method == 'POST':
+        if 'loggedin' not in session: 
+            return redirect(url_for('login'))
+
+        edit_id = request.form.get('id')
         name_project = request.form['name_project']
         language_info = request.form['language_info']
         new_description = request.form['description']
@@ -113,45 +112,40 @@ def projects():
         lien = request.form['lien']
 
         cursor = mysql.connection.cursor()
-        cursor.execute("UPDATE project SET name_project =%s, language_info =%s, new_description =%s, time =%s, skills= %s, lien =%s WHERE id_project = 1" , (name_project, language_info,new_description,time, new_skills, lien))
+
+        if edit_id:
+            cursor.execute("UPDATE project SET name_project = %s, language_info = %s, description = %s, time = %s, skills = %s, lien = %s WHERE id_project = %s", (name_project, language_info,new_description,time, new_skills, lien, edit_id))
+        else: 
+            cursor.execute("INSERT INTO `project` (id_project, name_project, language_info, time, skills, lien, description) VALUES (1, %s, %s, %s, %s, %s,%s)", (name_project, language_info,new_description,time, new_skills, lien))
         mysql.connection.commit()
-        cursor.close
+        cursor.close()
 
         return redirect(url_for('projects'))
 
-    cursor = mysql.connection.cursor()
-    
-    cursor.execute("SELECT * FROM `project`")
-    project = cursor.fetchall()
-    cursor.close()
+    selected_project = None
+    if show_form and project_id:
+        cursor = mysql.connection.cursor()
+        cursor.execute( "SELECT * FROM `project` WHERE id_project = %s", (project_id, ))
+        selected_project = cursor.fetchone()
+        cursor.close()
 
-    if project:
-        name = project['name_project']
-        languages_used = project['language_info']
-        description_project = project['description']
-        time_spent = project['time']
-        skills_learned = project['skills']
-        project_link = project['lien']
-    else:
-        name = languages_used = description_project = time_spent = skills_learned = project_link = ""
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM `project` ")
+    all_projects = cursor.fetchall()
+    cursor.close()
 
 
     return render_template(
         'projects.html',
         title="Projects",
         show_form=show_form,
-        name=name,
-        languages_used=languages_used,
-        description_project=description_project,
-        time_spent=time_spent,
-        skills_learned=skills_learned,
-        project_link=project_link
+        projects = all_projects,
+        project = selected_project
     )
 
 @app.route('/habits', methods=['GET', 'POST'])
 def habits():
-    if 'loggedin' not in session: 
-        return redirect(url_for('login'))
+
 
     show_form = (request.args.get('action') == 'add')
     today_date = datetime.now().strftime('%Y-%m-%d')
@@ -160,6 +154,9 @@ def habits():
     cursor = mysql.connection.cursor()
 
     if request.method == 'POST':
+        if 'loggedin' not in session: 
+            return redirect(url_for('login'))
+        
         name = request.form['name']
         times = request.form['times']
         done = request.form['done']

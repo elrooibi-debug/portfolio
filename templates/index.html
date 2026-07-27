@@ -3,7 +3,11 @@
 {% block index %}
     {% if not show_form %}
         <p>{{ presentation }}</p>
+
+        {% if session.get('loggedin') %}
         <a href="{{ url_for('index', action='edit') }}">Edit</a>
+        {% endif %}
+        
     {% else %}
         <a href="{{ url_for('index') }}">Cancel</a>
 

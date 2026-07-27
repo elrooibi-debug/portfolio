@@ -6,7 +6,9 @@
 
 <div style="margin-bottom: 15px;">
     {% if not show_form %}
+        {% if session.get('loggedin') %}
         <a href="{{ url_for('habits', action='add') }}">Add Habit</a>
+        {% endif %}
     {% else %}
         <a href="{{ url_for('habits') }}">Cancel</a>
     {% endif %}
