@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 from flask_mysqldb import MySQL
 from config import Config
-from forms import LoginForm
+
 from datetime import datetime
 
 app = Flask(__name__)
@@ -56,14 +56,50 @@ def index():
     
     return render_template('index.html', title="Home", show_form=show_form, presentation=texte_actuel)
 
-@app.route('/about')
+@app.route('/about', methods=['GET', 'POST'])
 def about():
-    return render_template('about.html', title="About")
+    show_form = (request.args.get('action') == 'edit')
+    about_id = request.args.get('id')
 
+    if request.method == 'POST':
+        if 'loggedin' not in session:
+            return redirect(url_for('login'))
 
+        edition_id = request.form.get('id')
+        new_text = request.form['description']
+        new_skills = request.form['skills']
+        email = request.form['email']
+        github_link = request.form['link']
+
+        cursor = mysql.connection.cursor()
+
+        if edition_id:
+            cursor.execute("UPDATE `about` SET description = %s, skills = %s, email = %s, link = %s WHERE id = %s", (new_text, new_skills, email, github_link, edition_id))
+        else: 
+            cursor.execute("INSERT INTO `about` (description, skills, email, link) VALUES (%s, %s, %s, %s)", (new_text, new_skills, email, github_link))
+
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('about'))
+
+    # Pour remplir le formulaire d'édition
+    selected_about = None
+    if show_form and about_id:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM `about` WHERE id = %s", (about_id,))
+        selected_about = cursor.fetchone()
+        cursor.close()
+
+    # Pour l'affichage normal
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM `about`")
+    about = cursor.fetchall()
+    cursor.close()
+
+    return render_template('about.html', title="About", about=about, show_form=show_form, selected_about=selected_about)
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']

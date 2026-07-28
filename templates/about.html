@@ -1,7 +1,57 @@
-{%extends "base.html" %}
+{% extends "base.html" %}
 
-    {%block about%}
+{% block about %}
+<h2>About Me</h2>
 
-    {%endblock%}
+{% if show_form %}
+    <!-- FORMULAIRE D'ÉDITION / AJOUT -->
+    <a href="{{ url_for('about') }}">← Annuler</a>
 
+    <form action="{{ url_for('about') }}" method="POST" style="margin-top: 15px;">
+        
+        {% if selected_about %}
+            <input type="hidden" name="id" value="{{ selected_about['id'] }}">
+        {% endif %}
 
+        <p>Description:<br>
+            <textarea name="description" rows="5" cols="50" required>{{ selected_about['description'] if selected_about else '' }}</textarea>
+        </p>
+
+        <p>Skills:<br>
+            <textarea name="skills" rows="3" cols="50" required>{{ selected_about['skills'] if selected_about else '' }}</textarea>
+        </p>
+
+        <p>Email:<br>
+            <input type="email" name="email" value="{{ selected_about['email'] if selected_about else '' }}" required>
+        </p>
+
+        <p>Link:<br>
+            <input type="text" name="link" value="{{ selected_about['link'] if selected_about else '' }}">
+        </p>
+
+        <input type="submit" value="Enregistrer">
+    </form>
+
+{% else %}
+
+    <!-- AFFICHAGE DES DONNÉES -->
+    {% for a in about %}
+        <div style="margin-bottom: 20px;">
+            <p>{{ a['description'] }}</p>
+            <p><strong>Skills:</strong> {{ a['skills'] }}</p>
+            <p><strong>Email:</strong> {{ a['email'] }}</p>
+
+            {% if a['link'] %}
+                <p><a href="{{ a['link'] }}" target="_blank">GitHub</a></p>
+            {% endif %}
+
+            {% if session.get('loggedin') %}
+                <a href="{{ url_for('about', action='edit', id=a['id']) }}">Modifier</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>Aucune donnée à afficher.</p>
+    {% endfor %}
+
+{% endif %}
+{% endblock %}

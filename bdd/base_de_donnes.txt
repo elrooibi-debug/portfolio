@@ -43,3 +43,20 @@ projets, index, about et login. ( tables secondaires pour la connexion et décon
 
 
 
+
+        {% if show_form %}
+        <form action="{{url_for('about')}} method="POST">
+            <input type="text" name="about_me">
+
+        
+        </form>
+        {% endif %}
+        </div>
+
+        {%if not show_form %}
+            {if session.get('loggedin')}
+                <a href="{{ url_for('about', action = 'edit')}}" method="POST">Edit</a>
+            {% else %}
+                <a href="{{ url_for('habits') }}">Cancel</a>
+            {% endif %}
+        {% endif %}
